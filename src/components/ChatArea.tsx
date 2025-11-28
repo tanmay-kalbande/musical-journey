@@ -18,6 +18,7 @@ interface ChatAreaProps {
   onSaveAsNote: (content: string) => void;
   onGenerateQuiz: () => void;
   onGenerateFlowchart: () => void;
+  onGenerateImage: () => void;
   onEditMessage?: (messageId: string, newContent: string) => void;
   onRegenerateResponse?: (messageId: string) => void;
   currentModel?: AIModel;
@@ -43,6 +44,7 @@ export function ChatArea({
   onSaveAsNote,
   onGenerateQuiz,
   onGenerateFlowchart,
+  onGenerateImage,
   onEditMessage,
   onRegenerateResponse,
   currentModel,
@@ -319,6 +321,7 @@ export function ChatArea({
           onStopGenerating={onStopGenerating}
           onGenerateQuiz={onGenerateQuiz}
           onGenerateFlowchart={onGenerateFlowchart}
+          onGenerateImage={onGenerateImage}
           canGenerateQuiz={!!canGenerateQuiz}
           canGenerateFlowchart={!!canGenerateFlowchart}
         />
