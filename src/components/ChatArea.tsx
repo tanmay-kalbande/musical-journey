@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
-import { Conversation, Message, AIModel } from '../types';
+import { Conversation, Message, AIModel, TutorMode } from '../types';
 import { Menu } from 'lucide-react';
+import { ModeSuggestionBanner } from './ModeSuggestionBanner';
 
 interface ChatAreaProps {
   conversation: Conversation | undefined;
@@ -23,6 +23,10 @@ interface ChatAreaProps {
   onModelChange?: (model: AIModel) => void;
   onOpenSidebar?: () => void;
   onSelectConversation?: (id: string) => void;
+  suggestedMode?: TutorMode | null;
+  showModeSuggestionBanner?: boolean;
+  onAcceptModeSuggestion?: () => void;
+  onDismissModeSuggestion?: () => void;
 }
 
 export function ChatArea({
@@ -44,6 +48,10 @@ export function ChatArea({
   onModelChange,
   onOpenSidebar,
   onSelectConversation,
+  suggestedMode,
+  showModeSuggestionBanner,
+  onAcceptModeSuggestion,
+  onDismissModeSuggestion,
 }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
@@ -116,19 +124,19 @@ export function ChatArea({
               <div className="text-sm font-semibold text-[var(--color-text-primary)]">Smart Learning</div>
               <div className="text-xs text-[var(--color-text-secondary)] mt-1">Personalized explanations</div>
             </div>
-            
+
             <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 hover:bg-[var(--color-bg-secondary)] transition-colors">
               <div className="text-3xl mb-2">📝</div>
               <div className="text-sm font-semibold text-[var(--color-text-primary)]">Take Notes</div>
               <div className="text-xs text-[var(--color-text-secondary)] mt-1">Save important answers</div>
             </div>
-            
+
             <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 hover:bg-[var(--color-bg-secondary)] transition-colors">
               <div className="text-3xl mb-2">🧠</div>
               <div className="text-sm font-semibold text-[var(--color-text-primary)]">Generate Quizzes</div>
               <div className="text-xs text-[var(--color-text-secondary)] mt-1">Test your knowledge</div>
             </div>
-            
+
             <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 hover:bg-[var(--color-bg-secondary)] transition-colors">
               <div className="text-3xl mb-2">🗺️</div>
               <div className="text-sm font-semibold text-[var(--color-text-primary)]">Visual Maps</div>
@@ -198,7 +206,7 @@ export function ChatArea({
               <h2 className="text-3xl lg:text-4xl font-bold text-[var(--color-text-primary)] text-center mb-3 tracking-tight">
                 {getGreeting()}
               </h2>
-              
+
               <p className="text-base lg:text-lg text-[var(--color-text-secondary)] text-center mb-8 max-w-md">
                 How can I help you today?
               </p>
@@ -292,6 +300,15 @@ export function ChatArea({
 
       {/* Chat Input */}
       <div className="chat-input-container relative z-40">
+        {/* Mode Suggestion Banner */}
+        {showModeSuggestionBanner && suggestedMode && onAcceptModeSuggestion && onDismissModeSuggestion && (
+          <ModeSuggestionBanner
+            suggestedMode={suggestedMode}
+            onAccept={onAcceptModeSuggestion}
+            onDismiss={onDismissModeSuggestion}
+          />
+        )}
+
         <ChatInput
           onSendMessage={onSendMessage}
           isLoading={isLoading}
