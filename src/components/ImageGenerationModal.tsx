@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Download, Sparkles, Loader2, Wand2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, Sparkles, Loader2, Copy, Check } from 'lucide-react';
 import { imageService } from '../services/imageService';
 import { Message } from '../types';
 
@@ -7,7 +7,6 @@ interface ImageGenerationModalProps {
     isOpen: boolean;
     onClose: () => void;
     apiKey: string;
-    onImageGenerated: (imageData: string, prompt: string) => void;
     conversationMessages?: Message[];
 }
 
@@ -15,202 +14,162 @@ export function ImageGenerationModal({
     isOpen,
     onClose,
     apiKey,
-    onImageGenerated,
     conversationMessages = [],
 }: ImageGenerationModalProps) {
-    const [prompt, setPrompt] = useState('');
+    const [generatedPrompt, setGeneratedPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-    const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
-    const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [copied, setCopied] = useState(false);
 
-    const handleAutoGeneratePrompt = async () => {
+    // Auto-generate on open
+    useEffect(() => {
+        if (isOpen && conversationMessages.length > 0 && !generatedPrompt && !isGenerating) {
+            handleGeneratePrompt();
+        }
+    }, [isOpen]);
+
+    const handleGeneratePrompt = async () => {
         if (conversationMessages.length === 0) {
             setError('No conversation to analyze. Start chatting first!');
             return;
         }
 
-        setIsGeneratingPrompt(true);
+        setIsGenerating(true);
         setError(null);
 
         try {
-            const generatedPrompt = await imageService.generatePromptFromConversation(
+            const prompt = await imageService.generateFullPromptFromConversation(
                 conversationMessages.map(m => ({ role: m.role, content: m.content })),
                 apiKey
             );
-            setPrompt(generatedPrompt);
+            setGeneratedPrompt(prompt);
         } catch (err: any) {
-            setError(err.message || 'Failed to generate prompt from conversation');
-        } finally {
-            setIsGeneratingPrompt(false);
-        }
-    };
-
-    const handleGenerate = async () => {
-        if (!prompt.trim()) {
-            setError('Please enter a description for the image');
-            return;
-        }
-
-        setIsGenerating(true);
-        setError(null);
-        setGeneratedImage(null);
-
-        try {
-            const imageData = await imageService.generateImage(prompt.trim(), apiKey);
-            setGeneratedImage(imageData);
-            onImageGenerated(imageData, prompt.trim());
-        } catch (err: any) {
-            setError(err.message || 'Failed to generate image');
+            setError(err.message || 'Failed to generate prompt');
         } finally {
             setIsGenerating(false);
         }
     };
 
-    const handleDownload = () => {
-        if (generatedImage) {
-            try {
-                imageService.downloadImage(generatedImage, prompt);
-            } catch (err: any) {
-                setError(err.message || 'Failed to download image');
-            }
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(generatedPrompt);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            setError('Failed to copy to clipboard');
         }
     };
 
     const handleClose = () => {
-        setPrompt('');
-        setGeneratedImage(null);
+        setGeneratedPrompt('');
         setError(null);
+        setCopied(false);
         onClose();
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !e.shiftKey && !isGenerating) {
-            e.preventDefault();
-            handleGenerate();
-        }
     };
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl">
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
-                    <div className="flex items-center gap-2">
-                        <Sparkles className="w-5 h-5 text-[var(--color-text-primary)]" />
-                        <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                            Generate Image
-                        </h2>
+                <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)] bg-gradient-to-r from-purple-500/10 to-blue-500/10">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
+                            <Sparkles className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+                                AI Image Prompt Generator
+                            </h2>
+                            <p className="text-xs text-[var(--color-text-secondary)]">
+                                Auto-generated from your conversation
+                            </p>
+                        </div>
                     </div>
                     <button
                         onClick={handleClose}
-                        className="p-2 hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors"
-                        aria-label="Close modal"
+                        className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
+                        aria-label="Close"
                     >
                         <X className="w-5 h-5 text-[var(--color-text-secondary)]" />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
-                    {/* Input Section */}
-                    <div className="space-y-4">
-                        {/* Auto-generate prompt button */}
-                        {conversationMessages && conversationMessages.length > 0 && (
+                <div className="p-6">
+                    {isGenerating ? (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                            <div className="relative">
+                                <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
+                                <Sparkles className="w-6 h-6 text-yellow-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                            </div>
+                            <p className="text-[var(--color-text-secondary)] text-sm">
+                                Analyzing your conversation and crafting the perfect prompt...
+                            </p>
+                        </div>
+                    ) : error ? (
+                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                            <p className="text-sm text-red-400">{error}</p>
+                        </div>
+                    ) : generatedPrompt ? (
+                        <div className="space-y-4">
+                            {/* Generated Prompt Display */}
+                            <div className="relative">
+                                <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl p-5 max-h-[50vh] overflow-y-auto">
+                                    <pre className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap font-mono leading-relaxed">
+                                        {generatedPrompt}
+                                    </pre>
+                                </div>
+                            </div>
+
+                            {/* Copy Button */}
                             <button
-                                onClick={handleAutoGeneratePrompt}
-                                disabled={isGeneratingPrompt || isGenerating}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={handleCopy}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
                             >
-                                {isGeneratingPrompt ? (
+                                {copied ? (
                                     <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Analyzing conversation...
+                                        <Check className="w-5 h-5" />
+                                        Copied!
                                     </>
                                 ) : (
                                     <>
-                                        <Wand2 className="w-4 h-4" />
-                                        Auto-Generate Prompt from Chat
+                                        <Copy className="w-5 h-5" />
+                                        Copy Prompt
                                     </>
                                 )}
                             </button>
-                        )}
 
-                        <div>
-                            <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
-                                Describe what you want to visualize
-                            </label>
-                            <textarea
-                                value={prompt}
-                                onChange={(e) => setPrompt(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                placeholder="Example: The water cycle process, Solar system structure, DNA replication..."
-                                className="w-full p-3 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] placeholder-[var(--color-text-placeholder)] resize-none focus:outline-none focus:ring-2 focus:ring-white/20"
-                                rows={4}
+                            {/* Instructions */}
+                            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                                <p className="text-sm text-blue-300 leading-relaxed">
+                                    <span className="font-semibold">✨ Ready to use!</span> Copy this prompt and paste it into:
+                                    <br />
+                                    • <strong>Gemini</strong> (Google's Imagen)
+                                    <br />
+                                    • <strong>DALL-E 3</strong> (OpenAI)
+                                    <br />
+                                    • <strong>Midjourney</strong>
+                                    <br />• <strong>Stable Diffusion</strong>
+                                </p>
+                            </div>
+
+                            {/* Regenerate Button */}
+                            <button
+                                onClick={handleGeneratePrompt}
                                 disabled={isGenerating}
-                            />
-                            <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-                                ✨ Sakha will automatically apply its signature dark cosmic style
-                            </p>
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-secondary)] text-sm font-medium transition-all disabled:opacity-50"
+                            >
+                                <Sparkles className="w-4 h-4" />
+                                Regenerate Prompt
+                            </button>
                         </div>
-
-                        {/* Generate Button */}
-                        <button
-                            onClick={handleGenerate}
-                            disabled={isGenerating || !prompt.trim()}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white text-black rounded-lg font-medium hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                            {isGenerating ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                    Generating...
-                                </>
-                            ) : (
-                                <>
-                                    <Sparkles className="w-5 h-5" />
-                                    Generate Image
-                                </>
-                            )}
-                        </button>
-
-                        {/* Error Message */}
-                        {error && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                                <p className="text-sm text-red-400 whitespace-pre-line">{error}</p>
-                            </div>
-                        )}
-
-                        {/* Generated Image */}
-                        {generatedImage && (
-                            <div className="space-y-4">
-                                <div className="relative rounded-lg overflow-hidden border border-[var(--color-border)] bg-[var(--color-bg-secondary)]">
-                                    <img
-                                        src={`data:image/png;base64,${generatedImage}`}
-                                        alt={prompt}
-                                        className="w-full h-auto"
-                                    />
-                                </div>
-
-                                {/* Download Button */}
-                                <button
-                                    onClick={handleDownload}
-                                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] font-medium transition-all"
-                                >
-                                    <Download className="w-5 h-5" />
-                                    Download Image
-                                </button>
-
-                                {/* Success Message */}
-                                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg">
-                                    <p className="text-sm text-green-400">
-                                        ✨ Image generated successfully with Sakha's dark cosmic style!
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    ) : (
+                        <div className="text-center py-8 text-[var(--color-text-secondary)]">
+                            No prompt generated yet
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
