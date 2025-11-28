@@ -92,8 +92,8 @@ export function ChatArea({
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-4 border border-[var(--color-border)] shadow-lg">
               <img
-                src="/white-logo.png"
-                alt="AI Tutor"
+                src="/mono-chat-view.svg"
+                alt="mono"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -102,10 +102,10 @@ export function ChatArea({
           {/* Title */}
           <div className="space-y-3">
             <h1 className="text-5xl font-bold text-[var(--color-text-primary)]">
-              AI Tutor
+              mono
             </h1>
             <p className="text-lg text-[var(--color-text-secondary)]">
-              Ask anything. Learn everything.
+              Your personal AI companion.
             </p>
           </div>
 
@@ -183,8 +183,8 @@ export function ChatArea({
                 <div className="relative">
                   <div className="w-16 h-16 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-3 border border-[var(--color-border)] shadow-lg">
                     <img
-                      src="/white-logo.png"
-                      alt="AI Tutor"
+                      src="/mono-chat-view.svg"
+                      alt="mono"
                       className="w-full h-full object-contain animate-pulse"
                       style={{ animationDuration: '2s' }}
                     />
@@ -200,7 +200,7 @@ export function ChatArea({
               </h2>
               
               <p className="text-base lg:text-lg text-[var(--color-text-secondary)] text-center mb-8 max-w-md">
-                How can I help you learn today?
+                How can I help you today?
               </p>
 
               {/* Quick suggestion cards - Desktop only */}
@@ -262,7 +262,7 @@ export function ChatArea({
               <div className="lg:hidden w-full max-w-md">
                 <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-xl p-4 text-center">
                   <p className="text-sm text-[var(--color-text-secondary)]">
-                    Type your question below to start learning
+                    Type your question below to start
                   </p>
                 </div>
               </div>
