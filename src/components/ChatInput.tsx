@@ -240,7 +240,7 @@ export function ChatInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message AI Tutor..."
+            placeholder="Message mono..."
             disabled={disabled || isLoading}
             className="w-full max-h-[100px] bg-transparent border-none outline-none text-[var(--color-text-primary)] placeholder-[var(--color-text-placeholder)] resize-none text-sm leading-relaxed"
             rows={1}
