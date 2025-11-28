@@ -65,7 +65,7 @@ export function NoteView({ note }: NoteViewProps) {
             <div className="w-20 h-20 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-4 border border-[var(--color-border)]">
               <img
                 src="/white-logo.png"
-                alt="AI Tutor"
+                alt="mono"
                 className="w-full h-full object-contain opacity-50"
               />
             </div>
