@@ -247,7 +247,7 @@ export function Sidebar({
                     title={model.name}
                   >
                     <model.icon className="w-4 h-4" />
-                    <span className="text-xs font-semibold truncate w-full text-center">{model.name.split(' ').slice(0, 2).join(' ')}</span>
+                    <span className="text-xs font-semibold truncate w-full text-center">{model.name}</span>
                   </button>
                 ))}
               </div>
@@ -282,7 +282,7 @@ export function Sidebar({
                       title={model.name}
                     >
                       <model.icon className="w-4 h-4" />
-                      <span className="text-xs font-semibold truncate w-full text-center">{model.name.split(' ').slice(0, 2).join(' ')}</span>
+                      <span className="text-xs font-semibold truncate w-full text-center">{model.name}</span>
                     </button>
                   ))}
                 </div>
