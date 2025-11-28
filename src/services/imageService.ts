@@ -1,7 +1,4 @@
-// Image generation service
-// Note: Google's Imagen API is not yet publicly available
-// This service is prepared for when the API becomes accessible
-
+// AI Prompt Generator Service for Image Generation
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Sakha's signature visual identity style prompt
@@ -60,24 +57,21 @@ Make every image feel like it belongs in a premium learning app - beautiful, inf
 
 USER REQUEST: `;
 
-export interface GeneratedImage {
-    id: string;
-    prompt: string;
-    imageData: string; // base64
-    createdAt: Date;
-}
-
-class ImageGenerationService {
+class ImagePromptService {
     /**
-     * Generate an optimized image prompt from conversation context
-     * Uses AI to extract key concepts and create a detailed prompt
+     * Generate complete prompt with Sakha style included
+     * This is what users will copy and paste into image generators
      */
-    async generatePromptFromConversation(
+    async generateFullPromptFromConversation(
         conversationMessages: Array<{ role: string; content: string }>,
         apiKey: string
     ): Promise<string> {
         if (!apiKey) {
             throw new Error('Google API key is required');
+        }
+
+        if (conversationMessages.length === 0) {
+            throw new Error('No conversation to analyze');
         }
 
         try {
@@ -105,56 +99,15 @@ Generate only the image prompt, nothing else:`;
 
             const result = await model.generateContent(systemPrompt);
             const response = result.response;
-            const promptText = response.text().trim();
+            const topicPrompt = response.text().trim();
 
-            return promptText;
+            // Combine Sakha style with topic prompt
+            return SAKHA_STYLE_PROMPT + topicPrompt;
         } catch (error: any) {
             console.error('Prompt generation error:', error);
             throw new Error('Failed to generate prompt from conversation');
         }
     }
-
-    /**
-     * Generate an image using image generation API
-     * Note: Currently not available - Google's Imagen API is not yet publicly accessible
-     */
-    async generateImage(userPrompt: string, apiKey: string): Promise<string> {
-        throw new Error(
-            '🚧 Image Generation Coming Soon!\n\n' +
-            'Google\'s Imagen API is not yet publicly available. We\'ve built this feature and it\'s ready to go as soon as Google releases the API access!\n\n' +
-            'In the meantime, you can:\n' +
-            '• Use the "Auto-Generate from Chat" button to create optimized prompts\n' +
-            '• Copy the generated prompts and use them with DALL-E, Midjourney, or Stable Diffusion\n\n' +
-            'We\'ll enable this feature automatically once the API becomes available! 🎨'
-        );
-    }
-
-    /**
-     * Download generated image as PNG file
-     */
-    downloadImage(imageData: string, prompt: string) {
-        try {
-            // Create a download link
-            const link = document.createElement('a');
-            link.href = `data:image/png;base64,${imageData}`;
-
-            // Create a safe filename from the prompt
-            const safeFilename = prompt
-                .substring(0, 50) // Limit length
-                .replace(/[^a-z0-9]/gi, '_') // Replace special chars
-                .toLowerCase();
-
-            link.download = `sakha_${safeFilename}_${Date.now()}.png`;
-
-            // Trigger download
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            console.error('Download error:', error);
-            throw new Error('Failed to download image');
-        }
-    }
 }
 
-export const imageService = new ImageGenerationService();
+export const imageService = new ImagePromptService();
