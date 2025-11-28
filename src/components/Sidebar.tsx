@@ -175,9 +175,9 @@ export function Sidebar({
               rel="noopener noreferrer"
               className="flex items-center gap-2.5 group px-2"
             >
-              <img src="/white-logo.png" alt="Logo" className="w-6 h-6" />
+              <img src="/mono.svg" alt="mono Logo" className="w-6 h-6" />
               <h1 className="text-lg font-semibold text-[var(--color-text-primary)] group-hover:opacity-80 transition-opacity">
-                AI Tutor
+                mono
               </h1>
             </a>
           )}
