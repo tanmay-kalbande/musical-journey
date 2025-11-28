@@ -1,4 +1,7 @@
-// Image generation service using Gemini 2.0 Flash Preview Image Generation
+// Image generation service
+// Note: Google's Imagen API is not yet publicly available
+// This service is prepared for when the API becomes accessible
+
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // Sakha's signature visual identity style prompt
@@ -66,80 +69,64 @@ export interface GeneratedImage {
 
 class ImageGenerationService {
     /**
-     * Generate an image using Gemini 2.0 Flash Preview Image Generation
-     * Automatically applies Sakha's brand style to the user's prompt
+     * Generate an optimized image prompt from conversation context
+     * Uses AI to extract key concepts and create a detailed prompt
      */
-    async generateImage(userPrompt: string, apiKey: string): Promise<string> {
+    async generatePromptFromConversation(
+        conversationMessages: Array<{ role: string; content: string }>,
+        apiKey: string
+    ): Promise<string> {
         if (!apiKey) {
-            throw new Error('Google API key is required for image generation');
-        }
-
-        if (!userPrompt.trim()) {
-            throw new Error('Please provide a description for the image');
+            throw new Error('Google API key is required');
         }
 
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-            // Use Imagen 3 which is available through the generative AI SDK
-            const model = genAI.getGenerativeModel({
-                model: "imagen-3.0-generate-001"
-            });
+            // Create a prompt for the AI to analyze the conversation and generate an image prompt
+            const systemPrompt = `You are an expert at creating detailed image generation prompts for educational content.
 
-            // Combine Sakha style prompt with user's request
-            const fullPrompt = SAKHA_STYLE_PROMPT + userPrompt;
+Analyze the conversation below and create a single, detailed image prompt that would best visualize the main concept being discussed.
 
-            // Generate image with highest quality settings
-            const result = await model.generateContent({
-                contents: [{
-                    role: 'user',
-                    parts: [{
-                        text: fullPrompt
-                    }]
-                }],
-                generationConfig: {
-                    // Request highest quality
-                    temperature: 0.4, // Lower for more consistent style
-                }
-            });
+Requirements:
+- Focus on the most recent or most important topic
+- Be specific and descriptive
+- Include key visual elements that would aid learning
+- Keep it concise (2-3 sentences max)
+- Don't include style instructions (those will be added automatically)
 
+Example output: "The water cycle showing evaporation from oceans, condensation forming clouds, precipitation as rain, and collection in rivers flowing back to the ocean, with clear labels for each stage"
+
+Conversation to analyze:
+${conversationMessages.slice(-10).map(m => `${m.role}: ${m.content}`).join('\n\n')}
+
+Generate only the image prompt, nothing else:`;
+
+            const result = await model.generateContent(systemPrompt);
             const response = result.response;
+            const promptText = response.text().trim();
 
-            // Extract image data from response
-            // The response should contain the generated image
-            if (!response) {
-                throw new Error('No response from image generation API');
-            }
-
-            // Get the first candidate's image data
-            const candidate = response.candidates?.[0];
-            if (!candidate) {
-                throw new Error('No image generated');
-            }
-
-            // Extract base64 image data from the response
-            // Note: The actual structure may vary, adjust based on API response
-            const imageData = candidate.content?.parts?.[0]?.inlineData?.data;
-
-            if (!imageData) {
-                throw new Error('Failed to extract image data from response');
-            }
-
-            return imageData;
+            return promptText;
         } catch (error: any) {
-            console.error('Image generation error:', error);
-
-            // Handle specific error cases
-            if (error.message?.includes('quota')) {
-                throw new Error('Daily image generation limit reached (100/day). Please try again tomorrow.');
-            } else if (error.message?.includes('rate limit')) {
-                throw new Error('Too many requests. Please wait a moment and try again.');
-            } else if (error.message?.includes('API key')) {
-                throw new Error('Invalid API key. Please check your Google API settings.');
-            }
-
-            throw new Error(error.message || 'Failed to generate image. Please try again.');
+            console.error('Prompt generation error:', error);
+            throw new Error('Failed to generate prompt from conversation');
         }
+    }
+
+    /**
+     * Generate an image using image generation API
+     * Note: Currently not available - Google's Imagen API is not yet publicly accessible
+     */
+    async generateImage(userPrompt: string, apiKey: string): Promise<string> {
+        throw new Error(
+            '🚧 Image Generation Coming Soon!\n\n' +
+            'Google\'s Imagen API is not yet publicly available. We\'ve built this feature and it\'s ready to go as soon as Google releases the API access!\n\n' +
+            'In the meantime, you can:\n' +
+            '• Use the "Auto-Generate from Chat" button to create optimized prompts\n' +
+            '• Copy the generated prompts and use them with DALL-E, Midjourney, or Stable Diffusion\n\n' +
+            'We\'ll enable this feature automatically once the API becomes available! 🎨'
+        );
     }
 
     /**
