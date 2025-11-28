@@ -8,8 +8,9 @@ import { FlowchartView } from './components/FlowchartView';
 import { InstallPrompt } from './components/InstallPrompt';
 import { SettingsModal } from './components/SettingsModal';
 import { QuizModal } from './components/QuizModal';
+import { ImageGenerationModal } from './components/ImageGenerationModal';
 import { Notification } from './components/Notification';
-import { Conversation, Message, APISettings, Note, StudySession, Flowchart, TutorMode, AIModel } from './types';
+import { Conversation, Message, APISettings, Note, StudySession, Flowchart, TutorMode, AIModel, GeneratedImage } from './types';
 import { generateId } from './utils/helpers';
 import { generateSmartTitle } from './services/titleGenerator';
 import { usePWA } from './hooks/usePWA';
@@ -50,6 +51,8 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [studySession, setStudySession] = useState<StudySession | null>(null);
 
   // Notification state
@@ -590,6 +593,26 @@ function App() {
     }
   };
 
+  // --- IMAGE GENERATION HANDLERS ---
+  const handleGenerateImage = () => {
+    setIsImageModalOpen(true);
+  };
+
+  const handleImageGenerated = (imageData: string, prompt: string) => {
+    const newImage: GeneratedImage = {
+      id: generateId(),
+      prompt,
+      imageData,
+      createdAt: new Date(),
+    };
+    setGeneratedImages(prev => [newImage, ...prev]);
+    showNotification('Image generated successfully!', 'success');
+  };
+
+  const handleCloseImageModal = () => {
+    setIsImageModalOpen(false);
+  };
+
   // --- OTHER HANDLERS ---
   const handleModelChange = (model: AIModel) => {
     const newSettings = { ...settings, selectedModel: model };
@@ -808,6 +831,7 @@ function App() {
             onSaveAsNote={handleSaveAsNote}
             onGenerateQuiz={handleGenerateQuiz}
             onGenerateFlowchart={handleGenerateFlowchart}
+            onGenerateImage={handleGenerateImage}
             onEditMessage={handleEditMessage}
             onRegenerateResponse={handleRegenerateResponse}
             currentModel={settings.selectedModel}
@@ -839,6 +863,12 @@ function App() {
         isOpen={isQuizModalOpen}
         onClose={() => setIsQuizModalOpen(false)}
         session={studySession}
+      />
+      <ImageGenerationModal
+        isOpen={isImageModalOpen}
+        onClose={handleCloseImageModal}
+        apiKey={settings.googleApiKey}
+        onImageGenerated={handleImageGenerated}
       />
       {isInstallable && !isInstalled && (
         <InstallPrompt onInstall={handleInstallApp} onDismiss={dismissInstallPrompt} />
