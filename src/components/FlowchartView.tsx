@@ -18,12 +18,12 @@ export function FlowchartView({ flowchart, onSave, onExport }: FlowchartViewProp
             <div className="w-20 h-20 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-4 border border-[var(--color-border)]">
               <img
                 src="/white-logo.png"
-                alt="mono"
+                alt="Sakha"
                 className="w-full h-full object-contain opacity-50"
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-[var(--color-text-primary)]">
               Select a Flowchart
@@ -40,7 +40,7 @@ export function FlowchartView({ flowchart, onSave, onExport }: FlowchartViewProp
               <div className="text-xs font-medium text-[var(--color-text-primary)] mb-1">Visual Learning</div>
               <div className="text-xs text-[var(--color-text-secondary)]">See concepts connected</div>
             </div>
-            
+
             <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-lg p-4">
               <div className="text-2xl mb-2">🔄</div>
               <div className="text-xs font-medium text-[var(--color-text-primary)] mb-1">Interactive</div>
