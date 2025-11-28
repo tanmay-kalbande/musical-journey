@@ -1,17 +1,17 @@
-export type TutorMode = 
+export type TutorMode =
   | 'clean'          // NEW: No system prompt mode
-  | 'standard' 
-  | 'mentor' 
-  | 'cosmic' 
+  | 'standard'
+  | 'mentor'
+  | 'cosmic'
   | 'ayanokoji'
-  | 'innovator'      
-  | 'strategist'     
-  | 'devil'          
-  | 'brainstorm'     
-  | 'coach'          
-  | 'scientist'      
-  | 'storyteller'    
-  | 'drill';         
+  | 'innovator'
+  | 'strategist'
+  | 'devil'
+  | 'brainstorm'
+  | 'coach'
+  | 'scientist'
+  | 'storyteller'
+  | 'drill';
 
 // Expanded Model IDs
 export type AIModel =
@@ -53,6 +53,13 @@ export interface Message {
   isEditing?: boolean;
 }
 
+export interface GeneratedImage {
+  id: string;
+  prompt: string;
+  imageData: string; // base64
+  createdAt: Date;
+}
+
 export interface Note {
   id: string;
   title: string;
@@ -66,8 +73,8 @@ export interface APISettings {
   googleApiKey: string;
   zhipuApiKey: string;
   mistralApiKey: string;
-  groqApiKey: string; 
-  cerebrasApiKey: string; 
+  groqApiKey: string;
+  cerebrasApiKey: string;
   selectedModel: AIModel;
   selectedTutorMode: TutorMode;
 }
