@@ -78,7 +78,7 @@ export function Sidebar({
 
   // --- MODEL LISTS ---
   const topModels = [
-    { id: 'gpt-oss-120b', icon: Cpu, name: 'Cerebras 120B' },
+    { id: 'gpt-oss-120b', icon: Cpu, name: 'GPT OSS 120B' },
     { id: 'openai/gpt-oss-20b', icon: Zap, name: 'GPT 20B' },
     { id: 'mistral-large-latest', icon: Cloud, name: 'Mistral Large' },
     { id: 'mistral-medium-latest', icon: Cloud, name: 'Mistral Medium' },
@@ -95,7 +95,7 @@ export function Sidebar({
     { id: 'codestral-latest', icon: Terminal, name: 'Codestral' },
     { id: 'qwen-3-235b-a22b-instruct-2507', icon: Cpu, name: 'Qwen 3' },
   ];
-  
+
   // Combined list for fallback logic (e.g., folded sidebar icon)
   const allModels = [...topModels, ...otherModels];
 
@@ -270,22 +270,22 @@ export function Sidebar({
 
               {/* Grid for Other Models (Conditional) */}
               {showAllModels && (
-                 <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-border)]">
-                 {otherModels.map(model => (
-                   <button
-                     key={model.id}
-                     onClick={() => onModelChange(model.id as AIModel)}
-                     className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-200 border transform hover:scale-105 active:scale-100 ${settings.selectedModel === model.id
-                       ? 'bg-[var(--color-card)] border-[var(--color-border)] text-white scale-105'
-                       : 'bg-transparent border-transparent hover:bg-[var(--color-card)] text-[var(--color-text-secondary)] hover:text-white'
-                       }`}
-                     title={model.name}
-                   >
-                     <model.icon className="w-4 h-4" />
-                     <span className="text-xs font-semibold truncate w-full text-center">{model.name.split(' ').slice(0, 2).join(' ')}</span>
-                   </button>
-                 ))}
-               </div>
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-border)]">
+                  {otherModels.map(model => (
+                    <button
+                      key={model.id}
+                      onClick={() => onModelChange(model.id as AIModel)}
+                      className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-200 border transform hover:scale-105 active:scale-100 ${settings.selectedModel === model.id
+                        ? 'bg-[var(--color-card)] border-[var(--color-border)] text-white scale-105'
+                        : 'bg-transparent border-transparent hover:bg-[var(--color-card)] text-[var(--color-text-secondary)] hover:text-white'
+                        }`}
+                      title={model.name}
+                    >
+                      <model.icon className="w-4 h-4" />
+                      <span className="text-xs font-semibold truncate w-full text-center">{model.name.split(' ').slice(0, 2).join(' ')}</span>
+                    </button>
+                  ))}
+                </div>
               )}
             </div>
           )}
