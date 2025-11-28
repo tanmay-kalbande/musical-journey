@@ -9,7 +9,7 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { SettingsModal } from './components/SettingsModal';
 import { QuizModal } from './components/QuizModal';
 import { Notification } from './components/Notification';
-import { Conversation, Message, APISettings, Note, StudySession, Flowchart, TutorMode } from './types';
+import { Conversation, Message, APISettings, Note, StudySession, Flowchart, TutorMode, AIModel } from './types';
 import { generateId } from './utils/helpers';
 import { generateSmartTitle } from './services/titleGenerator';
 import { usePWA } from './hooks/usePWA';
@@ -150,7 +150,7 @@ function App() {
     [flowcharts, currentFlowchartId]
   );
 
-  const hasApiKey = !!(settings.googleApiKey || settings.zhipuApiKey || settings.mistralApiKey);
+  const hasApiKey = !!(settings.googleApiKey || settings.zhipuApiKey || settings.mistralApiKey || settings.groqApiKey || settings.cerebrasApiKey);
 
   // --- GENERAL HANDLERS ---
   const handleSelectConversation = (id: string | null) => {
@@ -606,10 +606,19 @@ function App() {
     // If tutor mode was changed, regenerate the last response
     if (oldMode !== newMode) {
       const modeNames: Record<TutorMode, string> = {
+        clean: 'Clean Mode',
         standard: 'Standard Tutor',
         mentor: 'Friendly Mentor',
         cosmic: 'Cosmic Nerd',
-        ayanokoji: 'Ayanokoji'
+        ayanokoji: 'Ayanokoji',
+        innovator: 'The Innovator',
+        strategist: 'The Strategist',
+        devil: "Devil's Advocate",
+        brainstorm: 'Brainstorm Buddy',
+        coach: 'The Coach',
+        scientist: 'The Scientist',
+        storyteller: 'The Storyteller',
+        drill: 'Drill Sergeant'
       };
       showNotification(`Switched to ${modeNames[newMode]} mode. Regenerating response...`, 'success');
 
