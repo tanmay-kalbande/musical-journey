@@ -70,108 +70,155 @@ export function ImageGenerationModal({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="glass-panel w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-2xl shadow-2xl border border-white/10">
                 {/* Header */}
-                <div className="flex items-center justify-between p-5 border-b border-[var(--color-border)] bg-gradient-to-r from-purple-500/10 to-blue-500/10">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/10 rounded-lg backdrop-blur-sm">
-                            <Sparkles className="w-5 h-5 text-white" />
+                <div className="relative p-6 border-b border-white/10">
+                    {/* Cosmic gradient background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-500/20 to-purple-600/20 opacity-50"></div>
+
+                    <div className="relative flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10 backdrop-blur-sm">
+                                <Sparkles className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-bold text-white mb-1">
+                                    AI Prompt Generator
+                                </h2>
+                                <p className="text-sm text-white/60">
+                                    Powered by Gemini • Optimized for Sakha
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                                AI Image Prompt Generator
-                            </h2>
-                            <p className="text-xs text-[var(--color-text-secondary)]">
-                                Auto-generated from your conversation
-                            </p>
-                        </div>
+                        <button
+                            onClick={handleClose}
+                            className="p-2 rounded-lg hover:bg-white/10 transition-all duration-200 group"
+                            aria-label="Close"
+                        >
+                            <X className="w-5 h-5 text-white/60 group-hover:text-white transition-colors" />
+                        </button>
                     </div>
-                    <button
-                        onClick={handleClose}
-                        className="p-2 hover:bg-white/10 rounded-lg transition-all duration-200"
-                        aria-label="Close"
-                    >
-                        <X className="w-5 h-5 text-[var(--color-text-secondary)]" />
-                    </button>
                 </div>
 
                 {/* Content */}
                 <div className="p-6">
                     {isGenerating ? (
-                        <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                        <div className="flex flex-col items-center justify-center py-16 space-y-6">
                             <div className="relative">
-                                <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
-                                <Sparkles className="w-6 h-6 text-yellow-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                <div className="w-20 h-20 rounded-full border-4 border-white/10 border-t-white/60 animate-spin"></div>
+                                <Sparkles className="w-8 h-8 text-yellow-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
                             </div>
-                            <p className="text-[var(--color-text-secondary)] text-sm">
-                                Analyzing your conversation and crafting the perfect prompt...
-                            </p>
+                            <div className="text-center">
+                                <p className="text-white/80 text-base font-medium mb-2">
+                                    Analyzing conversation...
+                                </p>
+                                <p className="text-white/50 text-sm">
+                                    Crafting the perfect image prompt with Sakha's style
+                                </p>
+                            </div>
                         </div>
                     ) : error ? (
-                        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                            <p className="text-sm text-red-400">{error}</p>
+                        <div className="glass-panel p-5 border border-red-500/30 bg-red-500/10 rounded-xl">
+                            <p className="text-red-300 text-sm">{error}</p>
                         </div>
                     ) : generatedPrompt ? (
-                        <div className="space-y-4">
+                        <div className="space-y-5">
                             {/* Generated Prompt Display */}
-                            <div className="relative">
-                                <div className="bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl p-5 max-h-[50vh] overflow-y-auto">
-                                    <pre className="text-sm text-[var(--color-text-primary)] whitespace-pre-wrap font-mono leading-relaxed">
+                            <div className="glass-panel p-6 rounded-xl border border-white/10 bg-black/20">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <Sparkles className="w-4 h-4 text-purple-400" />
+                                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+                                        Generated Prompt
+                                    </span>
+                                </div>
+                                <div className="max-h-[40vh] overflow-y-auto custom-scrollbar">
+                                    <pre className="text-sm text-white/90 whitespace-pre-wrap font-mono leading-relaxed">
                                         {generatedPrompt}
                                     </pre>
                                 </div>
                             </div>
 
-                            {/* Copy Button */}
-                            <button
-                                onClick={handleCopy}
-                                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
-                            >
-                                {copied ? (
-                                    <>
-                                        <Check className="w-5 h-5" />
-                                        Copied!
-                                    </>
-                                ) : (
-                                    <>
-                                        <Copy className="w-5 h-5" />
-                                        Copy Prompt
-                                    </>
-                                )}
-                            </button>
+                            {/* Action Buttons */}
+                            <div className="grid grid-cols-1 gap-3">
+                                {/* Copy Button */}
+                                <button
+                                    onClick={handleCopy}
+                                    className="relative group overflow-hidden rounded-xl p-4 font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 bg-[length:200%_100%] animate-gradient"></div>
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div className="relative flex items-center justify-center gap-2">
+                                        {copied ? (
+                                            <>
+                                                <Check className="w-5 h-5" />
+                                                <span>Copied to Clipboard!</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-5 h-5" />
+                                                <span>Copy Prompt</span>
+                                            </>
+                                        )}
+                                    </div>
+                                </button>
 
-                            {/* Instructions */}
-                            <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                                <p className="text-sm text-blue-300 leading-relaxed">
-                                    <span className="font-semibold">✨ Ready to use!</span> Copy this prompt and paste it into:
-                                    <br />
-                                    • <strong>Gemini</strong> (Google's Imagen)
-                                    <br />
-                                    • <strong>DALL-E 3</strong> (OpenAI)
-                                    <br />
-                                    • <strong>Midjourney</strong>
-                                    <br />• <strong>Stable Diffusion</strong>
-                                </p>
+                                {/* Info Card */}
+                                <div className="glass-panel p-4 rounded-xl border border-blue-500/20 bg-blue-500/5">
+                                    <div className="flex items-start gap-3">
+                                        <Sparkles className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                                        <div className="text-sm text-white/70 leading-relaxed">
+                                            <span className="font-semibold text-blue-300">Ready to create!</span> Paste this into <strong className="text-white/90">Gemini</strong>, <strong className="text-white/90">DALL-E</strong>, <strong className="text-white/90">Midjourney</strong>, or <strong className="text-white/90">Stable Diffusion</strong> to generate beautiful educational images with Sakha's signature style.
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Regenerate Button */}
+                            {/* Regenerate */}
                             <button
                                 onClick={handleGeneratePrompt}
                                 disabled={isGenerating}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-secondary)] text-sm font-medium transition-all disabled:opacity-50"
+                                className="w-full flex items-center justify-center gap-2 px-4 py-3 glass-panel rounded-lg hover:bg-white/10 border border-white/10 text-white/70 hover:text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Sparkles className="w-4 h-4" />
                                 Regenerate Prompt
                             </button>
                         </div>
                     ) : (
-                        <div className="text-center py-8 text-[var(--color-text-secondary)]">
+                        <div className="text-center py-12 text-white/50">
                             No prompt generated yet
                         </div>
                     )}
                 </div>
             </div>
+
+            <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+        @keyframes gradient {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        .animate-gradient {
+          animation: gradient 3s ease infinite;
+        }
+      `}</style>
         </div>
     );
 }
