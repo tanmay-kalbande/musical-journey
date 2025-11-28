@@ -1,8 +1,8 @@
 import { APISettings, Conversation, StudySession, QuizQuestion, TutorMode, AIModel } from '../types';
 import { generateId } from '../utils/helpers';
 
-// Persona prompts for tutors
-const tutorPrompts: Record<TutorMode, string> = {
+// Persona prompts for tutors (excluding 'clean')
+const tutorPrompts: Record<Exclude<TutorMode, 'clean'>, string> = {
   standard: `You are an expert AI Tutor named 'Tutor'. Your primary goal is to help users understand complex topics through clear, patient, and encouraging guidance. Follow these principles strictly:
 1. Socratic Method: Do not just provide direct answers. Instead, ask guiding questions to help the user arrive at the solution themselves. Focus on ACADEMIC and TECHNICAL learning.
 2. Simplify Concepts: Break down complex subjects into smaller, digestible parts. Use simple language, analogies, and real-world examples to make concepts relatable.
@@ -125,13 +125,12 @@ async function* streamOpenAICompatResponse(
   apiKey: string,
   model: string,
   messages: { role: string; content: string }[],
-  systemPrompt: string,
-  timeout: number = 60000 // Increased timeout for flowcharts
+  systemPrompt: string | null, // Can be null for clean mode
+  timeout: number = 60000
 ): AsyncGenerator<string> {
-  const messagesWithSystemPrompt = [
-    { role: 'system', content: systemPrompt },
-    ...messages,
-  ];
+  const messagesWithSystemPrompt = systemPrompt 
+    ? [{ role: 'system', content: systemPrompt }, ...messages]
+    : messages;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
@@ -148,7 +147,7 @@ async function* streamOpenAICompatResponse(
         messages: messagesWithSystemPrompt,
         stream: true,
         max_tokens: 8192,
-        temperature: 0.2 // Lower temperature for JSON/Flowcharts
+        temperature: 0.2
       }),
       signal: controller.signal,
     });
@@ -213,15 +212,19 @@ class AiService {
     groqApiKey: '',
     cerebrasApiKey: '',
     selectedModel: 'gemini-2.5-flash',
-    selectedTutorMode: 'standard',
+    selectedTutorMode: 'clean', // Default to clean mode
   };
 
   public updateSettings(newSettings: APISettings) {
     this.settings = newSettings;
   }
 
-  private getSystemPrompt(): string {
-    return tutorPrompts[this.settings.selectedTutorMode] || tutorPrompts.standard;
+  private getSystemPrompt(): string | null {
+    // Return null for clean mode (no system prompt)
+    if (this.settings.selectedTutorMode === 'clean') {
+      return null;
+    }
+    return tutorPrompts[this.settings.selectedTutorMode as Exclude<TutorMode, 'clean'>] || null;
   }
 
   // Uses the currently selected model to generate flowcharts
@@ -259,7 +262,7 @@ class AiService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               contents: googleMessages,
-              generationConfig: { responseMimeType: "application/json" } // Force JSON
+              generationConfig: { responseMimeType: "application/json" }
             }),
             signal: controller.signal,
           });
@@ -275,7 +278,6 @@ class AiService {
             const { done, value } = await reader.read();
             if (done) break;
             const chunk = decoder.decode(value);
-            // Google SSE parsing is messy, simplified here for stream:
             const lines = chunk.split('\n');
             for (const line of lines) {
               if (line.startsWith('data: ')) {
@@ -360,7 +362,7 @@ class AiService {
     }
 
     const userMessages = messages.map(m => ({ role: m.role, content: m.content }));
-    const systemPrompt = this.getSystemPrompt();
+    const systemPrompt = this.getSystemPrompt(); // Can be null for clean mode
     const model = this.settings.selectedModel;
 
     try {
@@ -368,17 +370,21 @@ class AiService {
       if (model.startsWith('gemini') || model.startsWith('gemma')) {
         if (!this.settings.googleApiKey) throw new Error('Google API key not set');
 
-        // Ensure we use valid 2.5 models if available, fallback logic included in ID
         const googleUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${this.settings.googleApiKey}&alt=sse`;
 
-        const googleMessages = [
-          { role: 'user', parts: [{ text: systemPrompt }] },
-          { role: 'model', parts: [{ text: 'Understood. I will follow this role.' }] },
-          ...userMessages.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }],
-          })),
-        ];
+        const googleMessages = systemPrompt
+          ? [
+              { role: 'user', parts: [{ text: systemPrompt }] },
+              { role: 'model', parts: [{ text: 'Understood. I will follow this role.' }] },
+              ...userMessages.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }],
+              })),
+            ]
+          : userMessages.map(m => ({
+              role: m.role === 'assistant' ? 'model' : 'user',
+              parts: [{ text: m.content }],
+            }));
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
@@ -437,7 +443,7 @@ class AiService {
         );
       }
 
-      // ZHIPU / CEREBRAS (Check specific ID first for collisions)
+      // ZHIPU / CEREBRAS
       else if (model.includes('glm')) {
         if (model === 'zai-glm-4.6') {
           if (!this.settings.cerebrasApiKey) throw new Error('Cerebras API key not set for ZAI GLM');
@@ -472,7 +478,7 @@ class AiService {
         );
       }
 
-      // CEREBRAS MODELS (General check)
+      // CEREBRAS MODELS
       else if (model.includes('gpt-oss-120b') || model.includes('qwen')) {
         if (!this.settings.cerebrasApiKey) throw new Error('Cerebras API key not set');
         yield* streamOpenAICompatResponse(
@@ -494,7 +500,7 @@ class AiService {
     }
   }
 
-  // Quiz generation logic (FIXED & ROBUST)
+  // Quiz generation logic
   public async generateQuiz(conversation: Conversation): Promise<StudySession> {
     if (!this.settings.googleApiKey) {
       throw new Error('Google API key must be configured to generate quizzes.');
@@ -565,7 +571,6 @@ class AiService {
         throw new Error("Failed to parse AI response as JSON");
       }
 
-      // FIXED: Handle different possible valid JSON structures safely
       let questionsArray: any[] = [];
       if (Array.isArray(parsed)) {
         questionsArray = parsed;
@@ -583,28 +588,23 @@ class AiService {
       }
 
       const questions: QuizQuestion[] = questionsArray.map((q: any) => {
-        // Helper to find answer index safely
         let correctIndex = -1;
         const options = Array.isArray(q.options) ? q.options : ["Yes", "No", "Maybe", "Unsure"];
 
         if (q.answer) {
-          // Try exact match
           correctIndex = options.indexOf(q.answer);
 
-          // Try string match (trimmed)
           if (correctIndex === -1) {
             correctIndex = options.findIndex((opt: string) =>
               String(opt).trim().toLowerCase() === String(q.answer).trim().toLowerCase()
             );
           }
 
-          // Try letter matching (A, B, C, D)
           if (correctIndex === -1 && /^[A-D]$/i.test(q.answer)) {
             correctIndex = q.answer.toUpperCase().charCodeAt(0) - 65;
           }
         }
 
-        // Fallback to 0 if still not found (prevent crash)
         if (correctIndex === -1) correctIndex = 0;
 
         return {
