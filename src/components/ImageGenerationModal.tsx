@@ -88,11 +88,24 @@ export function ImageGenerationModal({
                         className="p-1.5 hover:bg-[var(--color-bg-secondary)] rounded-lg transition-colors"
                         aria-label="Close"
                     >
-                        ) : error ? (
+                        <X className="w-4 h-4 text-[var(--color-text-secondary)]" />
+                    </button>
+                </div>
+
+                {/* Content */}
+                <div className="p-5 max-h-[70vh] overflow-y-auto">
+                    {isGenerating ? (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                            <Sparkles className="w-8 h-8 text-purple-400 animate-pulse" />
+                            <p className="text-[var(--color-text-secondary)] text-sm">
+                                Analyzing your conversation...
+                            </p>
+                        </div>
+                    ) : error ? (
                         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                             <p className="text-sm text-red-400">{error}</p>
                         </div>
-                        ) : generatedPrompt ? (
+                    ) : generatedPrompt ? (
                         <div className="space-y-4">
                             {/* Prompt Display */}
                             <div className="p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg">
@@ -134,11 +147,11 @@ export function ImageGenerationModal({
                                 Regenerate
                             </button>
                         </div>
-                        ) : (
+                    ) : (
                         <div className="text-center py-8 text-[var(--color-text-secondary)] text-sm">
                             Start chatting to generate prompts
                         </div>
-          )}
+                    )}
                 </div>
             </div>
         </div>
