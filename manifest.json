@@ -12,15 +12,15 @@
   "categories": ["education", "productivity"],
   "icons": [
     {
-      "src": "/mono.svg",
+      "src": "/white-logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/mono.svg",
+      "src": "/white-logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "maskable any"
     }
   ],
@@ -32,23 +32,24 @@
       "url": "/?action=new-chat",
       "icons": [
         {
-          "src": "/mono.svg",
-          "sizes": "96x96"
+          "src": "/white-logo.png",
+          "sizes": "96x96",
+          "type": "image/png"
         }
       ]
     }
   ],
   "screenshots": [
     {
-      "src": "/mono.svg",
+      "src": "/white-logo.png",
       "sizes": "1280x720",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "/mono.svg",
+      "src": "/white-logo.png",
       "sizes": "750x1334",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "narrow"
     }
   ]
