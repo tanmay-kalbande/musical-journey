@@ -598,17 +598,6 @@ function App() {
     setIsImageModalOpen(true);
   };
 
-  const handleImageGenerated = (imageData: string, prompt: string) => {
-    const newImage: GeneratedImage = {
-      id: generateId(),
-      prompt,
-      imageData,
-      createdAt: new Date(),
-    };
-    setGeneratedImages(prev => [newImage, ...prev]);
-    showNotification('Image generated successfully!', 'success');
-  };
-
   const handleCloseImageModal = () => {
     setIsImageModalOpen(false);
   };
@@ -868,7 +857,6 @@ function App() {
         isOpen={isImageModalOpen}
         onClose={handleCloseImageModal}
         apiKey={settings.googleApiKey}
-        onImageGenerated={handleImageGenerated}
         conversationMessages={currentConversation?.messages || []}
       />
       {isInstallable && !isInstalled && (
