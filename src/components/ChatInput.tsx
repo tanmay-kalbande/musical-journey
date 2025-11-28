@@ -170,8 +170,8 @@ export function ChatInput({
               onClick={handleQuizClick}
               disabled={!canGenerateQuiz || isQuizLoading || isLoading}
               className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${!canGenerateQuiz
-                  ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
-                  : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
+                ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
+                : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
                 }`}
             >
               {isQuizLoading ? (
@@ -189,8 +189,8 @@ export function ChatInput({
               onClick={handleFlowchartClick}
               disabled={!canGenerateFlowchart || isFlowchartLoading || isLoading}
               className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${!canGenerateFlowchart
-                  ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
-                  : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
+                ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
+                : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
                 }`}
             >
               {isFlowchartLoading ? (
@@ -238,7 +238,7 @@ export function ChatInput({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Message mono..."
+            placeholder="Message Sakha..."
             disabled={disabled || isLoading}
             className="w-full max-h-[100px] bg-transparent border-none outline-none text-[var(--color-text-primary)] placeholder-[var(--color-text-placeholder)] resize-none text-sm leading-relaxed"
             rows={1}
