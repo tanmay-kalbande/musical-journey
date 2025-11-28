@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Square, ClipboardCheck, GitBranch, Loader2, Paperclip, ArrowUp, MoreHorizontal, X } from 'lucide-react';
+import { Send, Square, ClipboardCheck, GitBranch, Loader2, Paperclip, ArrowUp, MoreHorizontal, X, Sparkles } from 'lucide-react';
 import type { AIModel } from '../types';
 
 interface ChatInputProps {
@@ -11,6 +11,7 @@ interface ChatInputProps {
   onStopGenerating: () => void;
   onGenerateQuiz: () => void;
   onGenerateFlowchart: () => void;
+  onGenerateImage: () => void;
   canGenerateQuiz: boolean;
   canGenerateFlowchart: boolean;
 }
@@ -24,6 +25,7 @@ export function ChatInput({
   onStopGenerating,
   onGenerateQuiz,
   onGenerateFlowchart,
+  onGenerateImage,
   canGenerateQuiz,
   canGenerateFlowchart,
 }: ChatInputProps) {
@@ -203,6 +205,17 @@ export function ChatInput({
                 <div className="text-xs text-[var(--color-text-secondary)]">Visualize concepts</div>
               </div>
             </button>
+
+            <button
+              onClick={onGenerateImage}
+              className="w-full flex items-center gap-3 p-3 rounded-lg transition-all bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95"
+            >
+              <Sparkles className="w-5 h-5" />
+              <div className="flex-1 text-left">
+                <div className="text-sm font-semibold text-[var(--color-text-primary)]">Generate Image</div>
+                <div className="text-xs text-[var(--color-text-secondary)]">Create visual content</div>
+              </div>
+            </button>
           </div>
         </div>
       )}
@@ -266,6 +279,15 @@ export function ChatInput({
             title="Generate Flowchart"
           >
             {isFlowchartLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GitBranch className="w-4 h-4" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={onGenerateImage}
+            className="p-1.5 rounded-lg transition-colors hover:bg-[var(--color-bg-secondary)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
+            title="Generate Image"
+          >
+            <Sparkles className="w-4 h-4" />
           </button>
         </div>
 
