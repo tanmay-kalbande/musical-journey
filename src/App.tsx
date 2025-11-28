@@ -869,6 +869,7 @@ function App() {
         onClose={handleCloseImageModal}
         apiKey={settings.googleApiKey}
         onImageGenerated={handleImageGenerated}
+        conversationMessages={currentConversation?.messages || []}
       />
       {isInstallable && !isInstalled && (
         <InstallPrompt onInstall={handleInstallApp} onDismiss={dismissInstallPrompt} />
