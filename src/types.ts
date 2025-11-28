@@ -1,4 +1,5 @@
 export type TutorMode = 
+  | 'clean'          // NEW: No system prompt mode
   | 'standard' 
   | 'mentor' 
   | 'cosmic' 
@@ -27,7 +28,7 @@ export type AIModel =
   | 'glm-4.5-flash'
   // Groq
   | 'llama-3.3-70b-versatile'
-  | 'openai/gpt-oss-20b' // Specific Groq ID
+  | 'openai/gpt-oss-20b'
   // Cerebras
   | 'gpt-oss-120b'
   | 'qwen-3-235b-a22b-instruct-2507'
@@ -40,6 +41,7 @@ export interface Conversation {
   createdAt: Date;
   updatedAt: Date;
   isPinned?: boolean;
+  manualModeSelected?: boolean; // NEW: Track if user manually selected mode
 }
 
 export interface Message {
