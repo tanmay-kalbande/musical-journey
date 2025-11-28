@@ -243,7 +243,7 @@ export function MessageBubble({
       {isUser ? (
         <div className="flex items-start gap-3 bg-[#2a2a2a] text-white rounded-2xl px-4 py-3 w-fit sm:max-w-[85%] shadow-sm">
           {/* Emoji - aligned with first line */}
-          <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-[#E6E4DD] text-[#333333] select-none mt-0.5">
+          <div className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center bg-[#E6E4DD] text-[#333333] select-none">
             <Smile size={18} strokeWidth={2.5} />
           </div>
 
@@ -278,7 +278,7 @@ export function MessageBubble({
                 </div>
               </div>
             ) : (
-              <div 
+              <div
                 className="prose prose-invert max-w-none text-[15px] leading-relaxed font-semibold break-words"
                 style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
               >
@@ -312,7 +312,7 @@ export function MessageBubble({
             </div>
           )}
 
-          <div 
+          <div
             className="prose prose-invert max-w-none text-[15px] leading-relaxed text-[var(--color-text-primary)]"
             style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
           >
