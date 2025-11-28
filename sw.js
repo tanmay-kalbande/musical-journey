@@ -2,7 +2,7 @@ const CACHE_NAME = 'mono-v1';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/mono.svg',
+  '/white-logo.png',
   '/manifest.json',
   // Add other static assets as needed
 ];
@@ -95,8 +95,8 @@ self.addEventListener('push', event => {
   if (event.data) {
     const options = {
       body: event.data.text(),
-      icon: '/mono.svg',
-      badge: '/mono.svg',
+      icon: '/white-logo.png',
+      badge: '/white-logo.png',
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
