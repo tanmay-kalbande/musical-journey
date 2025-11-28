@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { X, Download, Sparkles, Loader2 } from 'lucide-react';
+import { X, Download, Sparkles, Loader2, Wand2 } from 'lucide-react';
 import { imageService } from '../services/imageService';
+import { Message } from '../types';
 
 interface ImageGenerationModalProps {
     isOpen: boolean;
     onClose: () => void;
     apiKey: string;
     onImageGenerated: (imageData: string, prompt: string) => void;
+    conversationMessages?: Message[];
 }
 
 export function ImageGenerationModal({
@@ -14,11 +16,35 @@ export function ImageGenerationModal({
     onClose,
     apiKey,
     onImageGenerated,
+    conversationMessages = [],
 }: ImageGenerationModalProps) {
     const [prompt, setPrompt] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+
+    const handleAutoGeneratePrompt = async () => {
+        if (conversationMessages.length === 0) {
+            setError('No conversation to analyze. Start chatting first!');
+            return;
+        }
+
+        setIsGeneratingPrompt(true);
+        setError(null);
+
+        try {
+            const generatedPrompt = await imageService.generatePromptFromConversation(
+                conversationMessages.map(m => ({ role: m.role, content: m.content })),
+                apiKey
+            );
+            setPrompt(generatedPrompt);
+        } catch (err: any) {
+            setError(err.message || 'Failed to generate prompt from conversation');
+        } finally {
+            setIsGeneratingPrompt(false);
+        }
+    };
 
     const handleGenerate = async () => {
         if (!prompt.trim()) {
@@ -91,6 +117,27 @@ export function ImageGenerationModal({
                 <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
                     {/* Input Section */}
                     <div className="space-y-4">
+                        {/* Auto-generate prompt button */}
+                        {conversationMessages && conversationMessages.length > 0 && (
+                            <button
+                                onClick={handleAutoGeneratePrompt}
+                                disabled={isGeneratingPrompt || isGenerating}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isGeneratingPrompt ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Analyzing conversation...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wand2 className="w-4 h-4" />
+                                        Auto-Generate Prompt from Chat
+                                    </>
+                                )}
+                            </button>
+                        )}
+
                         <div>
                             <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">
                                 Describe what you want to visualize
@@ -131,7 +178,7 @@ export function ImageGenerationModal({
                         {/* Error Message */}
                         {error && (
                             <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                                <p className="text-sm text-red-400">{error}</p>
+                                <p className="text-sm text-red-400 whitespace-pre-line">{error}</p>
                             </div>
                         )}
 
