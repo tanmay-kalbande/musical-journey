@@ -107,30 +107,33 @@ export function ImageGenerationModal({
                         </div>
                     ) : generatedPrompt ? (
                         <div className="space-y-4">
-                            {/* Prompt Display */}
-                            <div className="p-4 bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-lg">
-                                <p className="text-sm text-[var(--color-text-primary)] leading-relaxed whitespace-pre-wrap">
-                                    {generatedPrompt}
-                                </p>
+                            {/* Prompt Display with copy button in header */}
+                            <div className="border border-[var(--color-border)] rounded-lg overflow-hidden">
+                                <div className="flex items-center justify-between p-3 border-b border-[var(--color-border)] bg-[var(--color-bg-secondary)]/50">
+                                    <span className="text-xs font-medium text-[var(--color-text-secondary)]">Generated Prompt</span>
+                                    <button
+                                        onClick={handleCopy}
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white text-black rounded-md text-xs font-medium hover:bg-white/90 transition-all"
+                                    >
+                                        {copied ? (
+                                            <>
+                                                <Check className="w-3.5 h-3.5" />
+                                                Copied
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-3.5 h-3.5" />
+                                                Copy
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                                <div className="p-4 bg-[var(--color-bg-secondary)]">
+                                    <p className="text-xs text-[var(--color-text-primary)] leading-relaxed whitespace-pre-wrap font-mono">
+                                        {generatedPrompt}
+                                    </p>
+                                </div>
                             </div>
-
-                            {/* Copy Button */}
-                            <button
-                                onClick={handleCopy}
-                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-black rounded-lg font-medium hover:bg-white/90 transition-all"
-                            >
-                                {copied ? (
-                                    <>
-                                        <Check className="w-4 h-4" />
-                                        Copied!
-                                    </>
-                                ) : (
-                                    <>
-                                        <Copy className="w-4 h-4" />
-                                        Copy Prompt
-                                    </>
-                                )}
-                            </button>
 
                             {/* Info */}
                             <p className="text-xs text-[var(--color-text-secondary)] text-center">
