@@ -92,7 +92,7 @@ export function ChatArea({
           <div className="flex justify-center mb-6">
             <div className="w-20 h-20 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-4 border border-[var(--color-border)] shadow-lg">
               <img
-                src="/mono-chat-view.svg"
+                src="/white-logo.png"
                 alt="mono"
                 className="w-full h-full object-contain"
               />
@@ -183,7 +183,7 @@ export function ChatArea({
                 <div className="relative">
                   <div className="w-16 h-16 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-3 border border-[var(--color-border)] shadow-lg">
                     <img
-                      src="/mono-chat-view.svg"
+                      src="/white-logo.png"
                       alt="mono"
                       className="w-full h-full object-contain animate-pulse"
                       style={{ animationDuration: '2s' }}
