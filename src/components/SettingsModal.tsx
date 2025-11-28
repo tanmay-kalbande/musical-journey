@@ -19,6 +19,9 @@ const apiInfo = {
 };
 
 const tutorModes = [
+  // CLEAN MODE
+  { id: 'clean', name: 'Clean Mode', description: 'No persona, just raw AI response.', emoji: '✨' },
+
   // ORIGINAL MODES
   { id: 'standard', name: 'Standard Tutor', description: 'Neutral, explains clearly, step-by-step.', emoji: '📘' },
   { id: 'mentor', name: 'Friendly Mentor', description: 'Casual, motivating, makes analogies.', emoji: '🧑‍🏫' },
@@ -164,7 +167,7 @@ export function SettingsModal({ isOpen, onClose, settings, onSaveSettings }: Set
                 </h3>
                 <p className="text-xs text-[var(--color-text-secondary)] mb-3">
                   Current: <span className="font-semibold text-[var(--color-text-primary)]">
-                    {tutorModes.find(m => m.id === localSettings.selectedTutorMode)?.name || 'Standard Tutor'}
+                    {tutorModes.find(m => m.id === localSettings.selectedTutorMode)?.name || 'Clean Mode'}
                   </span>
                 </p>
               </div>
