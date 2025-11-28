@@ -1,3 +1,4 @@
+import React, { useEffect, useRef, useCallback, useMemo, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
 import { ChatInput } from './ChatInput';
 import { Conversation, Message, AIModel, TutorMode } from '../types';
