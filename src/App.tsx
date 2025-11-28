@@ -18,6 +18,7 @@ import { storageUtils } from './utils/storage';
 import { aiService } from './services/aiService';
 import { generateFlowchartFromConversation } from './services/flowchartGenerator';
 import { ShootingStars } from './components/ShootingStars';
+import { detectBestMode, shouldSuggestMode } from './services/modeDetection';
 
 type ActiveView = 'chat' | 'note' | 'flowchart';
 
@@ -57,6 +58,10 @@ function App() {
     message: '',
     type: 'success'
   });
+
+  // Mode detection state
+  const [suggestedMode, setSuggestedMode] = useState<TutorMode | null>(null);
+  const [showModeSuggestionBanner, setShowModeSuggestionBanner] = useState(false);
 
   // Use AbortController for proper cancellation
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -321,6 +326,21 @@ function App() {
       setStreamingMessage(null);
       setIsChatLoading(false);
       abortControllerRef.current = null;
+    }
+
+    // Mode detection: detect on first user message of a new conversation
+    if (conversationToUpdate.messages.length === 1 && !conversationToUpdate.manualModeSelected) {
+      const detection = detectBestMode(content);
+      const shouldShow = shouldSuggestMode(
+        detection,
+        settings.selectedTutorMode,
+        false
+      );
+
+      if (shouldShow && detection.suggestedMode !== 'clean') {
+        setSuggestedMode(detection.suggestedMode);
+        setShowModeSuggestionBanner(true);
+      }
     }
   };
 
@@ -603,6 +623,15 @@ function App() {
     storageUtils.saveSettings(newSettings);
     setSettingsOpen(false);
 
+    // Mark current conversation as manually selected mode
+    if (oldMode !== newMode && currentConversationId) {
+      setConversations(prev => prev.map(c =>
+        c.id === currentConversationId
+          ? { ...c, manualModeSelected: true }
+          : c
+      ));
+    }
+
     // If tutor mode was changed, regenerate the last response
     if (oldMode !== newMode) {
       const modeNames: Record<TutorMode, string> = {
@@ -649,6 +678,27 @@ function App() {
       abortControllerRef.current.abort();
       showNotification('Generation stopped', 'success');
     }
+  };
+
+  // Mode suggestion handlers
+  const handleAcceptModeSuggestion = () => {
+    if (suggestedMode) {
+      handleTutorModeChange(suggestedMode);
+      if (currentConversationId) {
+        setConversations(prev => prev.map(c =>
+          c.id === currentConversationId
+            ? { ...c, manualModeSelected: true }
+            : c
+        ));
+      }
+    }
+    setShowModeSuggestionBanner(false);
+    setSuggestedMode(null);
+  };
+
+  const handleDismissModeSuggestion = () => {
+    setShowModeSuggestionBanner(false);
+    setSuggestedMode(null);
   };
 
   const sortedNotes = useMemo(() =>
@@ -734,6 +784,10 @@ function App() {
             onModelChange={handleModelChange}
             onOpenSidebar={() => setSidebarOpen(true)}
             onSelectConversation={handleSelectConversation}
+            suggestedMode={suggestedMode}
+            showModeSuggestionBanner={showModeSuggestionBanner}
+            onAcceptModeSuggestion={handleAcceptModeSuggestion}
+            onDismissModeSuggestion={handleDismissModeSuggestion}
           />
         ) : activeView === 'note' ? (
           <NoteView note={currentNote} />
