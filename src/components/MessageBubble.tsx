@@ -257,7 +257,7 @@ export function MessageBubble({
                   onChange={(e) => setEditContent(e.target.value)}
                   onKeyDown={handleKeyDown}
                   className="w-full min-h-[60px] p-3 bg-[#1a1a1a] border border-white/10 rounded-lg resize-none text-white text-[15px] font-medium leading-relaxed focus:outline-none focus:border-blue-500"
-                  style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
                   placeholder="Edit your message..."
                 />
                 <div className="flex gap-2 justify-end mt-2">
@@ -280,7 +280,7 @@ export function MessageBubble({
             ) : (
               <div
                 className="prose prose-invert max-w-none text-[15px] leading-relaxed font-semibold break-words"
-                style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
+                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
               >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkMath]}
@@ -314,7 +314,7 @@ export function MessageBubble({
 
           <div
             className="prose prose-invert max-w-none text-[15px] leading-relaxed text-[var(--color-text-primary)]"
-            style={{ fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}
+            style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' }}
           >
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
