@@ -17,8 +17,8 @@ export function FlowchartView({ flowchart, onSave, onExport }: FlowchartViewProp
           <div className="flex justify-center">
             <div className="w-20 h-20 bg-[var(--color-card)] rounded-2xl flex items-center justify-center p-4 border border-[var(--color-border)]">
               <img
-                src="/white-logo.png"
-                alt="AI Tutor"
+                src="/mono.svg"
+                alt="mono"
                 className="w-full h-full object-contain opacity-50"
               />
             </div>
