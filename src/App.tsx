@@ -691,6 +691,36 @@ function App() {
             : c
         ));
       }
+
+      const modeNames: Record<TutorMode, string> = {
+        clean: 'Clean Mode',
+        standard: 'Standard Tutor',
+        mentor: 'Friendly Mentor',
+        cosmic: 'Cosmic Nerd',
+        ayanokoji: 'Ayanokoji',
+        innovator: 'The Innovator',
+        strategist: 'The Strategist',
+        devil: "Devil's Advocate",
+        brainstorm: 'Brainstorm Buddy',
+        coach: 'The Coach',
+        scientist: 'The Scientist',
+        storyteller: 'The Storyteller',
+        drill: 'Drill Sergeant'
+      };
+      showNotification(`Switched to ${modeNames[suggestedMode]} mode. Regenerating response...`, 'success');
+
+      const conversation = conversations.find(c => c.id === currentConversationId);
+      if (conversation && conversation.messages.length > 0) {
+        const lastAssistantMessage = [...conversation.messages].reverse().find(
+          (msg) => msg.role === 'assistant'
+        );
+
+        if (lastAssistantMessage) {
+          setTimeout(() => {
+            handleRegenerateResponse(lastAssistantMessage.id);
+          }, 100);
+        }
+      }
     }
     setShowModeSuggestionBanner(false);
     setSuggestedMode(null);
