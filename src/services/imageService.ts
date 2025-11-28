@@ -1,70 +1,18 @@
 // AI Prompt Generator Service for Image Generation
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-// Sakha's signature visual identity style prompt
-const SAKHA_STYLE_PROMPT = `Generate educational images in this exact style:
-
-VISUAL IDENTITY:
-- Dark cosmic background (#0A0A0A to #1F1F1F) with subtle starfield
-- Glass-morphism cards with frosted glass effect (rgba(20, 20, 20, 0.6))
-- White/light gray text (#FFFFFF, #A0A0A0)
-- Accent color: White (#FFFFFF) for highlights
-- Soft glowing borders (rgba(255, 255, 255, 0.1))
-
-LAYOUT STRUCTURE:
-- Main subject/illustration in the center (futuristic, sleek style)
-- 3-4 glass-morphic information cards around the edges
-- Each card has a clear header and clean bullet points
-- Modern, minimalist typography (Inter font style)
-- Small icons next to key information (glowing, simple line icons)
-
-ART STYLE:
-- Sleek, modern, slightly futuristic illustration
-- Smooth gradients and soft shadows
-- Cosmic/space-inspired when relevant
-- Glass and transparency effects
-- Professional digital art (not hand-drawn)
-- Think: "Apple keynote meets NASA mission graphics"
-
-COLOR PALETTE:
-- Background: Deep black (#050505) with subtle star dots
-- Cards: Dark glass (rgba(20, 20, 20, 0.6)) with white borders
-- Text: White primary (#FFFFFF), gray secondary (#A0A0A0)
-- Accents: White glow effects, subtle blue/purple hints
-- Keep it clean, sophisticated, and dark-mode native
-
-INFORMATION STRUCTURE (Adapt to subject but always include 3-4 educational sections):
-- Definition/Overview card
-- Key characteristics/features card
-- Practical applications/examples card
-- Important facts/tips card
-
-MOOD:
-- Intelligent, sophisticated, modern
-- Learning-focused but beautiful
-- Professional yet approachable
-- Cosmic/space aesthetic where it fits naturally
-
-BRAND CONSISTENCY:
-Match the Sakha app interface:
-- Glass panels with backdrop blur
-- Starfield backgrounds
-- Clean white text on dark
-- Minimalist modern design
-- Educational but visually stunning
-
-Make every image feel like it belongs in a premium learning app - beautiful, informative, and perfectly aligned with Sakha's dark cosmic aesthetic.
-
-USER REQUEST: `;
+// Sakha's watercolor educational image style
+const SAKHA_STYLE_PROMPT = `Create a beautiful watercolor painting illustration in a premium educational style. The image should feature soft, flowing watercolor textures with gentle color gradients and artistic brush strokes that blend naturally. Place the "SAKHA" logo text in elegant serif typography at the top right corner in deep navy blue or charcoal gray. Use a warm, inviting color palette with soft pastels (muted blues, gentle purples, warm oranges, soft greens) that create an approachable yet sophisticated learning atmosphere. The composition should be clean and uncluttered with 60% dedicated to the main educational illustration in the center, rendered in detailed watercolor style with visible brush strokes and natural color bleeding effects. Include 3-4 subtle information cards or label boxes around the illustration with hand-lettered text style, each containing 2-3 key facts or concepts with simple icons. The overall mood should be artistic, inspiring, and intellectually stimulating - imagine a blend of National Geographic illustrations and modern educational infographics, but rendered entirely in watercolor painting technique. Keep backgrounds soft and atmospheric with subtle texture, allowing the main subject to stand out. Add small decorative watercolor elements (dots, small flourishes, or abstract shapes) to enhance visual interest without cluttering. Technical parameters: medium saturation (60-70%), soft lighting with natural shadows, paper texture overlay at 20% opacity, artistic composition following rule of thirds, hand-painted aesthetic throughout. Style reference: contemporary watercolor educational illustration meets premium learning design. Subject for this illustration: `;
 
 class ImagePromptService {
     /**
-     * Generate complete prompt with Sakha style included
-     * This is what users will copy and paste into image generators
+     * Generate complete prompt with Sakha watercolor style
+     * Uses the same AI model the user is currently chatting with
      */
     async generateFullPromptFromConversation(
         conversationMessages: Array<{ role: string; content: string }>,
-        apiKey: string
+        apiKey: string,
+        modelName: string = 'gemini-2.5-flash' // Fallback to 2.5 flash
     ): Promise<string> {
         if (!apiKey) {
             throw new Error('Google API key is required');
@@ -76,7 +24,7 @@ class ImagePromptService {
 
         try {
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+            const model = genAI.getGenerativeModel({ model: modelName });
 
             // Create a prompt for the AI to analyze the conversation and generate an image prompt
             const systemPrompt = `You are an expert at creating detailed image generation prompts for educational content.
@@ -101,7 +49,7 @@ Generate only the image prompt, nothing else:`;
             const response = result.response;
             const topicPrompt = response.text().trim();
 
-            // Combine Sakha style with topic prompt
+            // Combine Sakha watercolor style with topic prompt
             return SAKHA_STYLE_PROMPT + topicPrompt;
         } catch (error: any) {
             console.error('Prompt generation error:', error);
