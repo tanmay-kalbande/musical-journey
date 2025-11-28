@@ -23,8 +23,12 @@ class ImagePromptService {
         }
 
         try {
+            // Only use Google/Gemini models - fallback if not a Gemini model
+            const isGeminiModel = modelName.toLowerCase().includes('gemini');
+            const actualModel = isGeminiModel ? modelName : 'gemini-2.5-flash';
+
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: modelName });
+            const model = genAI.getGenerativeModel({ model: actualModel });
 
             // Create a prompt for the AI to analyze the conversation and generate an image prompt
             const systemPrompt = `You are an expert at creating detailed image generation prompts for educational content.
