@@ -150,7 +150,7 @@ export function ChatInput({
 
       {/* Mobile Actions Menu with closing animation */}
       {showMobileActions && (
-        <div 
+        <div
           className="lg:hidden mb-3 p-3 bg-[var(--color-card)] border border-[var(--color-border)] rounded-2xl shadow-lg"
           style={{
             animation: 'slideUpFadeIn 0.3s ease-out forwards'
@@ -169,11 +169,10 @@ export function ChatInput({
             <button
               onClick={handleQuizClick}
               disabled={!canGenerateQuiz || isQuizLoading || isLoading}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-                !canGenerateQuiz
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${!canGenerateQuiz
                   ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
                   : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
-              }`}
+                }`}
             >
               {isQuizLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -189,11 +188,10 @@ export function ChatInput({
             <button
               onClick={handleFlowchartClick}
               disabled={!canGenerateFlowchart || isFlowchartLoading || isLoading}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-                !canGenerateFlowchart
+              className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${!canGenerateFlowchart
                   ? 'opacity-30 cursor-not-allowed bg-[var(--color-bg-secondary)]'
                   : 'bg-[var(--color-bg-secondary)] hover:bg-[var(--color-border)] active:scale-95'
-              }`}
+                }`}
             >
               {isFlowchartLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -234,7 +232,7 @@ export function ChatInput({
         />
 
         {/* Text area */}
-        <div className="flex-1 min-w-0 py-1">
+        <div className="flex-1 min-w-0 flex items-center">
           <textarea
             ref={textareaRef}
             value={input}
