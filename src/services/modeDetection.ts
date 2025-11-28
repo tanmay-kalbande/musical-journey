@@ -8,8 +8,8 @@ interface ModeDetectionResult {
   reason: string;
 }
 
-// Keywords for each mode - EXPANDED AND MORE SPECIFIC
-const MODE_KEYWORDS = {
+// Keywords for each mode (excluding 'clean')
+const MODE_KEYWORDS: Record<Exclude<TutorMode, 'clean'>, string[]> = {
   standard: [
     'learn', 'understand', 'explain', 'how does', 'what is', 'why',
     'teach me', 'tell me about', 'concept', 'theory', 'definition',
@@ -107,22 +107,22 @@ const MODE_KEYWORDS = {
 
 /**
  * Analyzes user's first message to suggest the best tutor mode
- * IMPROVED with better scoring and phrase matching
+ * Returns 'clean' if no strong mode match is found (confidence < threshold)
  */
 export function detectBestMode(userMessage: string): ModeDetectionResult {
   const message = userMessage.toLowerCase().trim();
   
-  // Skip detection for very short messages
+  // Skip detection for very short messages - default to clean
   if (message.length < 10) {
     return {
-      suggestedMode: 'standard',
+      suggestedMode: 'clean',
       confidence: 0.3,
-      reason: 'Message too short to detect intent'
+      reason: 'Message too short to detect intent - using clean mode'
     };
   }
   
   // Score each mode with weighted scoring
-  const scores: Record<TutorMode, number> = {
+  const scores: Record<Exclude<TutorMode, 'clean'>, number> = {
     standard: 0,
     mentor: 0,
     cosmic: 0,
@@ -140,69 +140,58 @@ export function detectBestMode(userMessage: string): ModeDetectionResult {
   // Count keyword matches with phrase detection
   for (const [mode, keywords] of Object.entries(MODE_KEYWORDS)) {
     for (const keyword of keywords) {
-      // Check for whole word matches (not substrings)
       const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
       
       if (regex.test(message)) {
-        // Weight longer phrases more heavily
         const weight = keyword.split(' ').length;
-        scores[mode as TutorMode] += weight;
+        scores[mode as Exclude<TutorMode, 'clean'>] += weight;
       }
     }
   }
   
   // Boost scores for specific patterns
-  
-  // Life/personal questions → coach
   if (/\b(my life|career path|personal growth|should i)\b/i.test(message)) {
     scores.coach += 3;
   }
   
-  // Decision questions → strategist
   if (/\b(should i|which one|better option|decide between)\b/i.test(message)) {
     scores.strategist += 3;
   }
   
-  // Creative requests → brainstorm or storyteller
   if (/\b(ideas for|creative|story|write|imagine)\b/i.test(message)) {
     scores.brainstorm += 2;
     scores.storyteller += 2;
   }
   
-  // Challenge/critique requests → devil
   if (/\b(challenge|wrong with|critique|devil's advocate)\b/i.test(message)) {
     scores.devil += 3;
   }
   
-  // Scientific/research → scientist
   if (/\b(research|study|hypothesis|experiment|data)\b/i.test(message)) {
     scores.scientist += 3;
   }
   
-  // Innovation/startup → innovator
   if (/\b(innovate|disrupt|startup|revolutionary|10x)\b/i.test(message)) {
     scores.innovator += 3;
   }
   
   // Find mode with highest score
-  let bestMode: TutorMode = 'standard';
+  let bestMode: Exclude<TutorMode, 'clean'> = 'standard';
   let maxScore = scores.standard;
   
   for (const [mode, score] of Object.entries(scores)) {
     if (score > maxScore) {
       maxScore = score;
-      bestMode = mode as TutorMode;
+      bestMode = mode as Exclude<TutorMode, 'clean'>;
     }
   }
   
   // Calculate confidence (0-1)
   const totalMatches = Object.values(scores).reduce((a, b) => a + b, 0);
   
-  // Improved confidence calculation
   let confidence = 0.3; // baseline
   
   if (totalMatches > 0) {
-    // Confidence based on how dominant the top mode is
     const dominance = maxScore / totalMatches;
     confidence = Math.min(0.95, 0.3 + (dominance * 0.7));
   }
@@ -212,8 +201,19 @@ export function detectBestMode(userMessage: string): ModeDetectionResult {
     confidence = Math.min(0.95, confidence + 0.15);
   }
   
+  // IMPORTANT: If confidence is too low, return 'clean' mode
+  const CONFIDENCE_THRESHOLD = 0.6; // Only suggest mode if confidence >= 60%
+  
+  if (confidence < CONFIDENCE_THRESHOLD || maxScore === 0) {
+    return {
+      suggestedMode: 'clean',
+      confidence: confidence,
+      reason: 'No strong mode detected - using clean mode for natural conversation'
+    };
+  }
+  
   // Generate reason
-  const reasons: Record<TutorMode, string> = {
+  const reasons: Record<Exclude<TutorMode, 'clean'>, string> = {
     standard: 'General learning question detected',
     mentor: 'Detected help-seeking language and need for guidance',
     cosmic: 'Detected space/sci-fi interest',
@@ -237,24 +237,34 @@ export function detectBestMode(userMessage: string): ModeDetectionResult {
 
 /**
  * Checks if we should show mode suggestion to user
- * IMPROVED with better thresholds
+ * Only suggest if:
+ * 1. Detected mode is not 'clean'
+ * 2. Current mode is 'clean' (not manually selected)
+ * 3. Confidence is high enough
  */
 export function shouldSuggestMode(
   detectionResult: ModeDetectionResult,
-  currentMode: TutorMode
+  currentMode: TutorMode,
+  isManuallySelected: boolean
 ): boolean {
+  // Never suggest if user manually selected a mode
+  if (isManuallySelected) {
+    return false;
+  }
+  
+  // Don't suggest if detected mode is clean
+  if (detectionResult.suggestedMode === 'clean') {
+    return false;
+  }
+  
   // Don't suggest if already using the detected mode
   if (detectionResult.suggestedMode === currentMode) {
     return false;
   }
   
-  // Don't suggest if it's just defaulting to standard with low confidence
-  if (detectionResult.suggestedMode === 'standard' && detectionResult.confidence < 0.5) {
-    return false;
-  }
-  
-  // Only suggest if confidence is high enough (lowered from 0.5 to 0.45)
-  return detectionResult.confidence >= 0.45;
+  // Only suggest if confidence is high enough
+  const SUGGESTION_THRESHOLD = 0.6; // 60% confidence minimum
+  return detectionResult.confidence >= SUGGESTION_THRESHOLD;
 }
 
 /**
@@ -262,6 +272,7 @@ export function shouldSuggestMode(
  */
 export function getModeSuggestionMessage(mode: TutorMode): string {
   const messages: Record<TutorMode, string> = {
+    clean: '🔘 Want natural conversation? Stay in Clean mode!',
     standard: '📘 Want structured learning? Try Standard Tutor mode!',
     mentor: '🧑‍🏫 Need patient step-by-step help? Try Friendly Mentor mode!',
     cosmic: '🌌 Love space? Try Cosmic Nerd mode for stellar explanations!',
